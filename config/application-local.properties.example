@@ -1,0 +1,15 @@
+# Copy to application-local.properties and activate the local profile.
+# Never commit the actual file containing credentials.
+platform.git.host=YOUR_GIT_SERVER_HOST
+platform.git.port=22
+platform.git.username=git
+platform.git.password=
+platform.git.base-path=/srv/git
+platform.git.known-hosts=C:/Users/YOUR_WINDOWS_USER/.ssh/known_hosts
+# Enable when the SSH account must create repositories as another account.
+platform.git.sudo-enabled=false
+platform.git.sudo-username=git
+# Empty means reuse the SSH password. Never include a newline.
+platform.git.sudo-password=
+# Empty means use the repository creation account.
+platform.git.clone-username=

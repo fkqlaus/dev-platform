@@ -1,0 +1,52 @@
+name: Verify source and build packages
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  package:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: windows-latest
+            platform: windows-x64
+          - runner: ubuntu-24.04
+            platform: linux-x64
+          - runner: ubuntu-24.04-arm
+            platform: linux-arm64
+          - runner: macos-15-intel
+            platform: macos-x64
+          - runner: macos-15
+            platform: macos-arm64
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build from source, test, and package
+        run: python scripts/package.py
+      - name: Smoke test the packaged application
+        run: python scripts/smoke-package.py
+      - name: Upload package and evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: dev-platform-${{ matrix.platform }}
+          path: |
+            build/distributions/*.zip
+            build/distributions/*.tar.gz
+            build/reports/package-smoke.json
+          if-no-files-found: error
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tests-${{ matrix.platform }}
+          path: build/test-results/test/*.xml
